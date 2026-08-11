@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Verbéo, application gratuite pour apprendre les verbes anglais.">
+<title>Verbéo — Apprendre les verbes anglais</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="top"><a class="brand" href="#">Verb<span>éo</span></a><div class="controls">
+<select id="lang" aria-label="Langue"><option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option></select>
+<button id="theme" aria-label="Mode nuit">☾</button></div></header>
+<main>
+<section class="hero"><b data-t="eyebrow">APPRENDRE L'ANGLAIS</b><h1><span data-t="title">Un verbe, ses formes,</span><br><em data-t="accent">et tout devient clair.</em></h1><p data-t="intro">Saisissez un verbe anglais pour découvrir sa conjugaison, sa traduction et sa définition.</p></section>
+<section class="panel"><h2 data-t="question">Quel verbe voulez-vous explorer ?</h2><form id="form"><label for="verb" data-t="label">Verbe anglais</label><div class="search"><input id="verb" data-ph="placeholder" placeholder="Ex. go, work, study…" autocomplete="off" required><button><span data-t="check">Vérifier</span> →</button></div><small data-t="hint">Entrez la forme de base, sans « to ».</small></form><p id="error" class="error" hidden></p></section>
+<section id="result" class="panel result" hidden>
+<div class="result-head"><div><span id="badge" class="badge"></span><h2 id="word"></h2><p id="rule"></p></div><button id="speak">🔊 <span data-t="listen">Écouter</span></button></div>
+<div class="forms"><article><small data-t="base">BASE VERBALE</small><strong id="base"></strong></article><article><small data-t="past">PRÉTÉRIT</small><strong id="past-form"></strong></article><article><small data-t="part">PARTICIPE PASSÉ</small><strong id="part"></strong></article></div>
+<h3 class="section-title" data-t="conj">CONJUGAISON — EXEMPLES AVEC « I »</h3>
+<div class="tenses"><article><small>PRESENT SIMPLE</small><strong id="present"></strong><p data-t="pHelp">Action habituelle ou vérité générale</p></article><article><small>PRESENT PERFECT</small><strong id="perfect"></strong><p data-t="ppHelp">Action passée liée au présent</p></article><article><small>PAST SIMPLE</small><strong id="past-simple"></strong><p data-t="psHelp">Action terminée dans le passé</p></article><article><small>PAST PERFECT</small><strong id="past-perfect"></strong><p data-t="pfHelp">Action antérieure à une autre action passée</p></article></div>
+<div class="details"><article><h3>🇫🇷 <span data-t="french">En français</span></h3><p id="translation"></p></article><article><h3>💡 <span data-t="definition">Définition</span></h3><p id="definition"></p></article></div>
+</section>
+<section class="examples"><h2 data-t="try">Essayez par exemple</h2><div id="chips"></div></section>
+</main>
+<footer><div><strong>Created by Abdel.B</strong><p data-t="footer">Votre compagnon pour maîtriser les verbes anglais.</p></div><nav><a href="mailto:abdel.bouzourine.ti@gmail.com">✉ abdel.bouzourine.ti@gmail.com</a><a href="tel:+14382213326">☎ 438 221-3326</a><a href="https://www.linkedin.com/in/abdelkader-bouzourine-data-analyst/" target="_blank" rel="noopener">in LinkedIn</a></nav></footer>
+<script src="app.js"></script></body></html>
