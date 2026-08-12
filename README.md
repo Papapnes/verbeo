@@ -1,23 +1,29 @@
 # Verbéo
 
-Application web éducative créée par Abdel.B pour apprendre les verbes anglais réguliers et irréguliers.
+Une application web éducative pour apprendre les verbes anglais réguliers et irréguliers.
 
 ## Fonctionnalités
 
-- Base verbale, prétérit et participe passé
-- Present simple, present perfect, past simple et past perfect
-- Traduction et définition en français
-- Prononciation audio
-- Interfaces française, anglaise et arabe
-- Modes clair et sombre
-- Responsive : ordinateur et téléphone
+- recherche d'un verbe anglais à l'infinitif ;
+- affichage du prétérit et du participe passé ;
+- conjugaison au present simple, present perfect, past simple et past perfect avec le sujet « I » ;
+- identification des verbes réguliers et irréguliers ;
+- traduction et définition en français pour les verbes du dictionnaire local ;
+- prononciation de chaque phrase conjuguée avec la synthèse vocale du navigateur ;
+- interface responsive pour ordinateur et téléphone.
+- modes clair et sombre avec mémorisation du choix ;
+- interface disponible en français, anglais et arabe.
 
-## Utilisation
+## Utilisation locale
 
-Ouvrez `index.html` ou consultez le site GitHub Pages du projet.
+Ouvrez simplement `index.html` dans un navigateur moderne. Aucune installation n'est nécessaire.
 
-## Contact
+## Publication avec GitHub Pages
 
-- Courriel : abdel.bouzourine.ti@gmail.com
-- Téléphone : 438 221-3326
-- LinkedIn : https://www.linkedin.com/in/abdelkader-bouzourine-data-analyst/
+1. Créez un dépôt GitHub.
+2. Ajoutez les fichiers de ce dossier et poussez-les sur la branche `main`.
+3. Dans **Settings → Pages**, choisissez **Deploy from a branch**, puis `main` et `/ (root)`.
+
+## Limite actuelle
+
+Le MVP utilise un dictionnaire embarqué. Les verbes irréguliers les plus courants sont reconnus précisément. Un verbe absent de cette liste est traité comme régulier ; une version future pourra utiliser une API de dictionnaire complète.
