@@ -1,0 +1,4 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+nltk>=3.9,<4
+lemminflect>=0.2.3,<1
