@@ -13,6 +13,9 @@ Une application web éducative pour apprendre les verbes anglais réguliers et i
 - interface responsive pour ordinateur et téléphone.
 - modes clair et sombre avec mémorisation du choix ;
 - interface disponible en français, anglais et arabe.
+- base embarquée de 101 verbes irréguliers vérifiés ;
+- lien Cambridge Dictionary affiché avec chaque résultat vérifié ;
+- aucune conjugaison inventée pour les verbes absents de la base.
 
 ## Utilisation locale
 
@@ -26,4 +29,14 @@ Ouvrez simplement `index.html` dans un navigateur moderne. Aucune installation n
 
 ## Limite actuelle
 
-Le MVP utilise un dictionnaire embarqué. Les verbes irréguliers les plus courants sont reconnus précisément. Un verbe absent de cette liste est traité comme régulier ; une version future pourra utiliser une API de dictionnaire complète.
+La conjugaison n'est affichée que pour les verbes présents dans les listes
+vérifiées. L'API publique sert à confirmer qu'un mot existe et à fournir une
+définition, mais elle n'est jamais utilisée pour inventer un prétérit ou un
+participe passé. Les variantes d'usage sont signalées séparément lorsqu'elles
+existent.
+
+### Sources de vérification
+
+- Oxford Advanced Learner's Dictionary ;
+- Cambridge Dictionary ;
+- Merriam-Webster pour les cas ambigus et les variantes.
