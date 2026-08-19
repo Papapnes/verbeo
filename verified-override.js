@@ -23,6 +23,18 @@ const UNVERIFIED = {
   },
 };
 
+const LEXICON_NOTE = {
+  fr: "Formes issues de WordNet et du moteur morphologique lemminflect. Consultez la source pour les variantes de sens ou d’usage.",
+  en: "Forms provided by WordNet and the lemminflect morphology engine. Check the source for meaning or usage variants.",
+  ar: "الصيغ مستخرجة من WordNet ومحرك التصريف lemminflect. راجع المصدر للاطلاع على اختلافات المعنى والاستعمال.",
+};
+
+const RULE_NOTE = {
+  fr: "Verbe confirmé par le dictionnaire. Formes régulières calculées selon les règles orthographiques anglaises.",
+  en: "Verb confirmed by the dictionary. Regular forms calculated with English spelling rules.",
+  ar: "أكد القاموس أن الكلمة فعل. حُسبت الصيغ المنتظمة وفق قواعد الإملاء الإنجليزية.",
+};
+
 function detailsExtras() {
   const card = document.querySelector("#definition").closest("article");
   let note = document.querySelector("#usage-note");
@@ -55,6 +67,13 @@ function showConjugation() {
   document.querySelector(".section-title").hidden = false;
 }
 
+function regularPresentParticiple(v) {
+  if (v.endsWith("ie")) return `${v.slice(0, -2)}ying`;
+  if (v.endsWith("e") && !v.endsWith("ee")) return `${v.slice(0, -1)}ing`;
+  if (/[^aeiou][aeiou][^aeiouwxy]$/.test(v) && v.length <= 5) return `${v}${v.at(-1)}ing`;
+  return `${v}ing`;
+}
+
 show = async function showVerified(raw) {
   const v = raw.toLowerCase().trim().replace(/^to\s+/, "");
   const currentLanguage = lang.value;
@@ -68,18 +87,22 @@ show = async function showVerified(raw) {
     return;
   }
 
+  const irr = VERIFIED_V[v];
+  const reg = VERIFIED_R[v];
+  const lexical = VERB_LEXICON[v];
+
   error.textContent = currentLanguage === "fr"
     ? "Vérification du mot…"
     : currentLanguage === "ar" ? "جارٍ التحقق من الكلمة…" : "Checking the word…";
   error.hidden = false;
 
   let dict = null;
-  try { dict = await lookupWord(v); } catch (_) { /* Verified data still works offline. */ }
+  if (!irr && !reg && !lexical) {
+    try { dict = await lookupWord(v); } catch (_) { /* Local data still works offline. */ }
+  }
+  const fallbackRegular = !irr && !reg && !lexical && Boolean(dict?.isVerb);
 
-  const irr = VERIFIED_V[v];
-  const reg = VERIFIED_R[v];
-
-  if (!irr && !reg) {
+  if (!irr && !reg && !lexical && !fallbackRegular) {
     if (!dict) {
       error.textContent = currentLanguage === "fr"
         ? "Mot absent de la base vérifiée. Aucune conjugaison n’a été inventée."
@@ -122,15 +145,16 @@ show = async function showVerified(raw) {
   showClassification(dict, true);
   showConjugation();
 
-  const p = irr ? irr[0] : past(v);
-  const participle = irr ? irr[1] : p;
+  const p = irr ? irr[0] : lexical ? lexical[0] : past(v);
+  const participle = irr ? irr[1] : lexical ? lexical[1] : p;
   const cleanPast = p.split(" / ")[0];
   const cleanParticiple = participle.split(" / ")[0];
-  const sourceUrl = irr ? irr[5] : reg[2];
+  const sourceUrl = irr ? irr[5] : reg ? reg[2] : `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(v)}`;
+  const isIrregular = Boolean(irr || lexical?.[6]);
 
-  $("#badge").textContent = irr ? copy.irregular : copy.regular;
+  $("#badge").textContent = isIrregular ? copy.irregular : copy.regular;
   $("#word").textContent = v;
-  $("#rule").textContent = irr ? copy.memorize : copy.rule;
+  $("#rule").textContent = isIrregular ? copy.memorize : copy.rule;
   $("#base").textContent = v;
   $("#past-form").textContent = p;
   $("#part").textContent = participle;
@@ -138,9 +162,9 @@ show = async function showVerified(raw) {
   $("#perfect").textContent = `I have ${cleanParticiple}`;
   $("#past-simple").textContent = v === "be" ? "I was" : `I ${cleanPast}`;
   $("#past-perfect").textContent = `I had ${cleanParticiple}`;
-  $("#translation").textContent = irr ? irr[2] : reg[0];
-  $("#definition").textContent = irr ? irr[3] : reg[1];
-  extra.note.textContent = irr?.[4] || "";
+  $("#translation").textContent = irr ? irr[2] : reg ? reg[0] : lexical?.[5] || "—";
+  $("#definition").textContent = irr ? irr[3] : reg ? reg[1] : lexical?.[4] || dict?.verbDefinition || dict?.definition || "Definition unavailable.";
+  extra.note.textContent = irr?.[4] || (lexical ? LEXICON_NOTE[currentLanguage] : RULE_NOTE[currentLanguage]);
   extra.source.href = sourceUrl;
   extra.source.textContent = SOURCE_LABEL[currentLanguage];
 

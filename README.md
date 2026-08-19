@@ -13,7 +13,8 @@ Une application web éducative pour apprendre les verbes anglais réguliers et i
 - interface responsive pour ordinateur et téléphone.
 - modes clair et sombre avec mémorisation du choix ;
 - interface disponible en français, anglais et arabe.
-- base embarquée de 101 verbes irréguliers vérifiés ;
+- base prioritaire de 101 verbes irréguliers vérifiés manuellement ;
+- lexique statique de plus de 8 000 verbes anglais issu de WordNet et lemminflect ;
 - lien Cambridge Dictionary affiché avec chaque résultat vérifié ;
 - aucune conjugaison inventée pour les verbes absents de la base.
 
@@ -29,14 +30,16 @@ Ouvrez simplement `index.html` dans un navigateur moderne. Aucune installation n
 
 ## Limite actuelle
 
-La conjugaison n'est affichée que pour les verbes présents dans les listes
-vérifiées. L'API publique sert à confirmer qu'un mot existe et à fournir une
-définition, mais elle n'est jamais utilisée pour inventer un prétérit ou un
-participe passé. Les variantes d'usage sont signalées séparément lorsqu'elles
-existent.
+Les formes vérifiées manuellement ont toujours priorité. Les autres verbes du
+lexique WordNet utilisent les flexions fournies par lemminflect. Pour un verbe
+plus récent absent du lexique, l'API publique confirme d'abord qu'il s'agit bien
+d'un verbe avant l'application des règles régulières. Les variantes d'usage sont
+signalées séparément lorsqu'elles existent.
 
 ### Sources de vérification
 
 - Oxford Advanced Learner's Dictionary ;
 - Cambridge Dictionary ;
 - Merriam-Webster pour les cas ambigus et les variantes.
+- Princeton WordNet et Open Multilingual WordNet pour le lexique étendu ;
+- lemminflect pour les formes morphologiques.
