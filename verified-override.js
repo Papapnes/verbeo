@@ -35,6 +35,64 @@ const RULE_NOTE = {
   ar: "أكد القاموس أن الكلمة فعل. حُسبت الصيغ المنتظمة وفق قواعد الإملاء الإنجليزية.",
 };
 
+// Common nouns that should not be presented as ordinary verbs to learners.
+// Some dictionaries/WordNet include very rare verbal senses for "cat" and
+// "glass"; Verbéo keeps those senses visible without generating conjugations.
+const PEDAGOGICAL_NOUNS = {
+  car: {
+    translation: "voiture",
+    definition: {
+      fr: "Véhicule routier à quatre roues. « Car » est ici un nom, pas un verbe.",
+      en: "A four-wheeled road vehicle. Here, “car” is a noun, not a verb.",
+      ar: "مركبة طريق ذات أربع عجلات. كلمة «car» هنا اسم وليست فعلاً.",
+    },
+  },
+  cat: {
+    translation: "chat",
+    rareVerb: true,
+    definition: {
+      fr: "Animal domestique félin. Un emploi verbal très rare existe, mais il n’est pas enseigné comme verbe courant.",
+      en: "A domesticated feline animal. A very rare verbal use exists, but it is not taught as a common verb.",
+      ar: "حيوان أليف من فصيلة السنوريات. يوجد استعمال فعلي نادر جداً، لكنه ليس فعلاً شائعاً للتعلّم.",
+    },
+  },
+  glass: {
+    translation: "verre",
+    rareVerb: true,
+    definition: {
+      fr: "Matière transparente ou récipient en verre. Des emplois verbaux spécialisés existent, mais ils ne sont pas courants.",
+      en: "A transparent material or a drinking vessel. Specialized verbal uses exist, but they are not common.",
+      ar: "مادة شفافة أو وعاء للشرب. توجد استعمالات فعلية متخصصة، لكنها غير شائعة.",
+    },
+  },
+};
+
+function showPedagogicalNoun(v, entry, currentLanguage, extra) {
+  const labels = POS_LABELS[currentLanguage];
+  $("#classification-primary").textContent = labels.noun;
+  $("#classification-other").textContent = entry.rareVerb
+    ? `${labels.also} : ${labels.verb} (${currentLanguage === "fr" ? "rare" : currentLanguage === "ar" ? "نادر" : "rare"})`
+    : "";
+  $("#badge").textContent = entry.rareVerb
+    ? (currentLanguage === "fr" ? "Nom — emploi verbal rare" : currentLanguage === "ar" ? "اسم — استعمال فعلي نادر" : "Noun — rare verb use")
+    : labels.noun;
+  $("#word").textContent = v;
+  $("#rule").textContent = currentLanguage === "fr"
+    ? "Aucune conjugaison affichée en mode apprentissage."
+    : currentLanguage === "ar" ? "لا يُعرض أي تصريف في وضع التعلّم." : "No conjugation shown in learning mode.";
+  $("#translation").textContent = entry.translation;
+  $("#definition").textContent = entry.definition[currentLanguage];
+  extra.note.textContent = entry.rareVerb
+    ? (currentLanguage === "fr" ? "Le sens nominal courant est prioritaire." : currentLanguage === "ar" ? "تُعطى الأولوية للمعنى الاسمي الشائع." : "The common noun meaning is prioritized.")
+    : "";
+  extra.source.href = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(v)}`;
+  extra.source.textContent = SOURCE_LABEL[currentLanguage];
+  hideConjugation();
+  error.hidden = true;
+  result.hidden = false;
+  result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
 function detailsExtras() {
   const card = document.querySelector("#definition").closest("article");
   let note = document.querySelector("#usage-note");
@@ -84,6 +142,12 @@ show = async function showVerified(raw) {
     error.textContent = copy.invalid;
     error.hidden = false;
     result.hidden = true;
+    return;
+  }
+
+  const pedagogicalNoun = PEDAGOGICAL_NOUNS[v];
+  if (pedagogicalNoun) {
+    showPedagogicalNoun(v, pedagogicalNoun, currentLanguage, extra);
     return;
   }
 
