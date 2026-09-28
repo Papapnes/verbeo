@@ -35,58 +35,30 @@ const RULE_NOTE = {
   ar: "أكد القاموس أن الكلمة فعل. حُسبت الصيغ المنتظمة وفق قواعد الإملاء الإنجليزية.",
 };
 
-// Common nouns that should not be presented as ordinary verbs to learners.
-// Some dictionaries/WordNet include very rare verbal senses for "cat" and
-// "glass"; Verbéo keeps those senses visible without generating conjugations.
-const PEDAGOGICAL_NOUNS = {
-  car: {
-    translation: "voiture",
-    definition: {
-      fr: "Véhicule routier à quatre roues. « Car » est ici un nom, pas un verbe.",
-      en: "A four-wheeled road vehicle. Here, “car” is a noun, not a verb.",
-      ar: "مركبة طريق ذات أربع عجلات. كلمة «car» هنا اسم وليست فعلاً.",
-    },
-  },
-  cat: {
-    translation: "chat",
-    rareVerb: true,
-    definition: {
-      fr: "Animal domestique félin. Un emploi verbal très rare existe, mais il n’est pas enseigné comme verbe courant.",
-      en: "A domesticated feline animal. A very rare verbal use exists, but it is not taught as a common verb.",
-      ar: "حيوان أليف من فصيلة السنوريات. يوجد استعمال فعلي نادر جداً، لكنه ليس فعلاً شائعاً للتعلّم.",
-    },
-  },
-  glass: {
-    translation: "verre",
-    rareVerb: true,
-    definition: {
-      fr: "Matière transparente ou récipient en verre. Des emplois verbaux spécialisés existent, mais ils ne sont pas courants.",
-      en: "A transparent material or a drinking vessel. Specialized verbal uses exist, but they are not common.",
-      ar: "مادة شفافة أو وعاء للشرب. توجد استعمالات فعلية متخصصة، لكنها غير شائعة.",
-    },
-  },
-};
-
-function showPedagogicalNoun(v, entry, currentLanguage, extra) {
+function showWordNetNoun(v, dict, untaggedVerb, currentLanguage, extra) {
   const labels = POS_LABELS[currentLanguage];
   $("#classification-primary").textContent = labels.noun;
-  $("#classification-other").textContent = entry.rareVerb
-    ? `${labels.also} : ${labels.verb} (${currentLanguage === "fr" ? "rare" : currentLanguage === "ar" ? "نادر" : "rare"})`
+  $("#classification-other").textContent = untaggedVerb
+    ? `${labels.also} : ${labels.verb} (${currentLanguage === "fr" ? "sens spécialisé" : currentLanguage === "ar" ? "معنى متخصص" : "specialized sense"})`
     : "";
-  $("#badge").textContent = entry.rareVerb
-    ? (currentLanguage === "fr" ? "Nom — emploi verbal rare" : currentLanguage === "ar" ? "اسم — استعمال فعلي نادر" : "Noun — rare verb use")
+  $("#badge").textContent = untaggedVerb
+    ? (currentLanguage === "fr" ? "Nom — sens verbal spécialisé" : currentLanguage === "ar" ? "اسم — معنى فعلي متخصص" : "Noun — specialized verb sense")
     : labels.noun;
   $("#word").textContent = v;
   $("#rule").textContent = currentLanguage === "fr"
     ? "Aucune conjugaison affichée en mode apprentissage."
     : currentLanguage === "ar" ? "لا يُعرض أي تصريف في وضع التعلّم." : "No conjugation shown in learning mode.";
-  $("#translation").textContent = entry.translation;
-  $("#definition").textContent = entry.definition[currentLanguage];
-  extra.note.textContent = entry.rareVerb
-    ? (currentLanguage === "fr" ? "Le sens nominal courant est prioritaire." : currentLanguage === "ar" ? "تُعطى الأولوية للمعنى الاسمي الشائع." : "The common noun meaning is prioritized.")
-    : "";
-  extra.source.href = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(v)}`;
-  extra.source.textContent = SOURCE_LABEL[currentLanguage];
+  $("#translation").textContent = "—";
+  $("#definition").textContent = dict?.definition || (currentLanguage === "fr"
+    ? "Mot identifié comme nom par Princeton WordNet."
+    : currentLanguage === "ar" ? "صُنّفت هذه الكلمة اسماً في Princeton WordNet." : "Word identified as a noun by Princeton WordNet.");
+  extra.note.textContent = untaggedVerb
+    ? (currentLanguage === "fr" ? "Le sens nominal attesté est prioritaire ; l’emploi verbal n’apparaît pas dans le corpus annoté de WordNet." : currentLanguage === "ar" ? "تُعطى الأولوية للمعنى الاسمي الموثق؛ لم يظهر الاستعمال الفعلي في مجموعة WordNet المشروحة." : "The attested noun sense is prioritized; the verb use does not occur in WordNet's tagged corpus.")
+    : (currentLanguage === "fr" ? "Classification grammaticale : Princeton WordNet 3.0." : currentLanguage === "ar" ? "التصنيف النحوي: Princeton WordNet 3.0." : "Part-of-speech classification: Princeton WordNet 3.0.");
+  extra.source.href = "https://wordnet.princeton.edu/";
+  extra.source.textContent = currentLanguage === "fr"
+    ? "Source : Princeton WordNet 3.0"
+    : currentLanguage === "ar" ? "المصدر: Princeton WordNet 3.0" : "Source: Princeton WordNet 3.0";
   hideConjugation();
   error.hidden = true;
   result.hidden = false;
@@ -145,15 +117,12 @@ show = async function showVerified(raw) {
     return;
   }
 
-  const pedagogicalNoun = PEDAGOGICAL_NOUNS[v];
-  if (pedagogicalNoun) {
-    showPedagogicalNoun(v, pedagogicalNoun, currentLanguage, extra);
-    return;
-  }
-
   const irr = VERIFIED_V[v];
   const reg = VERIFIED_R[v];
   const lexical = VERB_LEXICON[v];
+  const nounOnly = WORDNET_NOUN_ONLY.has(v);
+  const nounVerb = WORDNET_NOUN_VERBS.has(v);
+  const untaggedVerb = WORDNET_UNTAGGED_VERBS.has(v);
 
   error.textContent = currentLanguage === "fr"
     ? "Vérification du mot…"
@@ -161,8 +130,16 @@ show = async function showVerified(raw) {
   error.hidden = false;
 
   let dict = null;
-  if (!irr && !reg && !lexical) {
+  if ((!irr && !reg && !lexical) || nounOnly || untaggedVerb) {
     try { dict = await lookupWord(v); } catch (_) { /* Local data still works offline. */ }
+  }
+
+  // Manually verified verbs always win. For the remaining words, WordNet's
+  // noun categories and corpus tag counts prevent ordinary nouns and unattested
+  // rare verb senses from being presented as everyday verbs.
+  if (!irr && !reg && (nounOnly || untaggedVerb)) {
+    showWordNetNoun(v, dict, untaggedVerb, currentLanguage, extra);
+    return;
   }
   const fallbackRegular = !irr && !reg && !lexical && Boolean(dict?.isVerb);
 
@@ -206,7 +183,7 @@ show = async function showVerified(raw) {
     return;
   }
 
-  showClassification(dict, true);
+  showClassification(dict || (nounVerb ? { parts: ["verb", "noun"] } : null), true);
   showConjugation();
 
   const p = irr ? irr[0] : lexical ? lexical[0] : past(v);
