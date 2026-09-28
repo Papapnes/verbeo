@@ -15,6 +15,7 @@ Une application web éducative pour apprendre les verbes anglais réguliers et i
 - interface disponible en français, anglais et arabe.
 - base prioritaire de 101 verbes irréguliers vérifiés manuellement ;
 - lexique statique de plus de 8 000 verbes anglais issu de WordNet et lemminflect ;
+- index grammatical WordNet de 49 342 noms sans sens verbal et 5 849 mots pouvant être noms et verbes ;
 - lien Cambridge Dictionary affiché avec chaque résultat vérifié ;
 - aucune conjugaison inventée pour les verbes absents de la base.
 
@@ -36,10 +37,17 @@ plus récent absent du lexique, l'API publique confirme d'abord qu'il s'agit bie
 d'un verbe avant l'application des règles régulières. Les variantes d'usage sont
 signalées séparément lorsqu'elles existent.
 
+La classification nom/verbe est générée depuis Princeton WordNet 3.0. Pour
+rester prudente, l'application ne conjugue pas automatiquement un sens verbal
+qui n'apparaît jamais dans le corpus sémantiquement annoté de WordNet. Cela ne
+signifie pas que ce sens est incorrect : il peut être spécialisé ou simplement
+absent de ce corpus. Les 101 verbes contrôlés manuellement restent prioritaires.
+
 ### Sources de vérification
 
 - Oxford Advanced Learner's Dictionary ;
 - Cambridge Dictionary ;
 - Merriam-Webster pour les cas ambigus et les variantes.
 - Princeton WordNet et Open Multilingual WordNet pour le lexique étendu ;
+- [comptages des sens annotés de Princeton WordNet](https://wordnet.princeton.edu/documentation/cntlist5wn) pour la prudence nom/verbe ;
 - lemminflect pour les formes morphologiques.
